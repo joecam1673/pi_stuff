@@ -8,15 +8,6 @@ import time
 import random
 import subprocess 
 
-# set variables that match the pins on the PI for the buttons
-simpsonsButton = 17
-futuramaButton = 27
-disenchantmentButton = 22
-
-# set variables for directories with video files
-simpsonsDirectory = "/home/pi/Videos/Simpsons/"
-futuramaDirectory = "/home/pi/Videos/Futurama/"
-disenchantmentDirectory = "/home/pi/Videos/Disenchantment/"
 
 # initiate variables for use in functions
 episode = None
@@ -24,10 +15,18 @@ omxc = None
 previousEpisode = []
 
 # set up the GPIO stuff for the PI buttons
-GPIO.setmode(GPIO.BCM)
-GPIO.setup(simpsonsButton, GPIO.IN)
-GPIO.setup(futuramaButton, GPIO.IN)
-GPIO.setup(disenchantmentButton, GPIO.IN)
+GPIO.setmode(GPIO.BOARD)
+simpsonsButton = 13
+disenchantmentButton = 16
+futuramaButton = 33
+GPIO.setup(simpsonsButton, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
+GPIO.setup(disenchantmentButton, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
+GPIO.setup(futuramaButton, GPIO.IN, pull_up_down=GPIO.PUD_DOWN) 
+
+# set variables for directories with video files
+simpsonsDirectory = "/home/pi/Videos/Simpsons/"
+futuramaDirectory = "/home/pi/Videos/Futurama/"
+disenchantmentDirectory = "/home/pi/Videos/Disenchantment/"
 
 # functions for each show / button
 
@@ -38,24 +37,11 @@ def playSimpsons():
     omxc = subprocess.Popen(['omxplayer', '-b', simpsonsDirectory + episode, ' &'])
     time.sleep(.3)
 
-## working function to use as model for other functions
+## works-ish but sloppy and old
 def playFuturama():
-    global episode
-    global previousEpisode
-    global omxc
-
-    if episode != None:
-        previousEpisode.append(episode)
-
     episode = random.choice(os.listdir(futuramaDirectory))
-
-    while episode in previousEpisode:
-        episode = random.choice(os.listdir(futuramaDirectory))
-
-    if omxc != None:
-        subprocess.Popen(['killall', 'omxplayer.bin'])
-
-    omxc = subprocess.Popen(['omxplayer', '-b', futuramaDirectory + episode])
+    os.system('killall omxplayer.bin')
+    omxc = subprocess.Popen(['omxplayer', '-b', futuramaDirectory + episode, ' &'])
     time.sleep(.3)
 
 ## works-ish but sloppy and old
