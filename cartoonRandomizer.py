@@ -1,69 +1,58 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
-# import probably too much stuff
 import RPi.GPIO as GPIO
-import os
-import sys
-import time
-import random
-import subprocess 
-
-
-# initiate variables for use in functions
-episode = None
-omxc = None
-previousEpisode = []
+from omxplayer import OMXPlayer
+import os, random
 
 # set up the GPIO stuff for the PI buttons
 GPIO.setmode(GPIO.BOARD)
+
 simpsonsButton = 13
 disenchantmentButton = 16
 futuramaButton = 33
+
 GPIO.setup(simpsonsButton, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
 GPIO.setup(disenchantmentButton, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
 GPIO.setup(futuramaButton, GPIO.IN, pull_up_down=GPIO.PUD_DOWN) 
 
-# set variables for directories with video files
-simpsonsDirectory = "/home/pi/Videos/Simpsons/"
-futuramaDirectory = "/home/pi/Videos/Futurama/"
-disenchantmentDirectory = "/home/pi/Videos/Disenchantment/"
+simpsonsDir = "/home/pi/Videos/Simpsons/"
+disenchantmentDir = "/home/pi/Videos/Disenchantment/"
+futuramaDir = "/home/pi/Videos/Futurama/"
 
-# functions for each show / button
+simpsonsEpisodes = os.listdir(simpsonsDir)
+disenchantmentEpisodes = os.listdir(disenchantmentDir)
+futuramaEpisodes = os.listdir(futuramaDir)
 
-## works-ish but sloppy and old
-def playSimpsons():
-    episode = random.choice(os.listdir(simpsonsDirectory))
-    os.system('killall omxplayer.bin')
-    omxc = subprocess.Popen(['omxplayer', '-b', simpsonsDirectory + episode, ' &'])
-    time.sleep(.3)
+#        if GPIO.input(disenchantmentButton) == 1:
+#            playDisenchantment()
 
-## works-ish but sloppy and old
-def playFuturama():
-    episode = random.choice(os.listdir(futuramaDirectory))
-    os.system('killall omxplayer.bin')
-    omxc = subprocess.Popen(['omxplayer', '-b', futuramaDirectory + episode, ' &'])
-    time.sleep(.3)
-
-## works-ish but sloppy and old
-def playDisenchantment():
-    episode = random.choice(os.listdir(disenchantmentDirectory))
-    os.system('killall omxplayer.bin')
-    omxc = subprocess.Popen(['omxplayer', '-b', disenchantmentDirectory + episode, ' &'])
-    time.sleep(.3)
-
-# main code to wait for button presses.  
-try: 
+if __name__ == "__main__":
     while True:
         if GPIO.input(simpsonsButton) == 1:
-            playSimpsons()
-    
-        if GPIO.input(futuramaButton) == 1:
-            playFuturama()
-    
-        if GPIO.input(disenchantmentButton) == 1:
-            playDisenchantment()
+            try:
+                if player.is_playing():
+                    if len(simpsonsEpisodes) == 0:
+                        simpsonsEpisodes = os.listdir(simpsonsDir)
 
-# reset GPIO on ctrl-c
-except KeyboardInterrupt:
-    GPIO.cleanup()
+                    os.chdir(simpsonsDir)
+                    simpsonsEpisode = random.choice(simpsonsEpisodes)
+                    simpsonsEpisodes.remove(simpsonsEpisode)
+                    player.load(simpsonsEpisode)
 
+            except:
+                    os.chdir(simpsonsDir)
+                    simpsonsEpisode = random.choice(simpsonsEpisodes)
+                    simpsonsEpisodes.remove(simpsonsEpisode)
+                    player = OMXPlayer(simpsonsEpisode, '-b')
+
+#        if GPIO.input(disenchantmentButton) == 1:
+#            os.chdir(disenchantmentDir)
+#            episode = random.choice(disenchantmentEpisodes)
+#            disenchantmentEpisodes.remove(episode)
+#            player = OMXPlayer(episode, '-b')
+#
+#        if GPIO.input(futuramaButton) == 1:
+#            os.chdir(futuramaDir)
+#            episode = random.choice(futuramaEpisodes)
+#            futuramaEpisodes.remove(episode)
+#            player = OMXPlayer(episode, '-b')
