@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-#import logging
+import logging
 
 import os
 import re
@@ -10,7 +10,7 @@ from time import sleep
 import RPi.GPIO as GPIO
 from omxplayer.player import OMXPlayer
 
-#logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.ERROR)
 
 # Set up regex to check for qualifying files.
 vid_files = re.compile('\.(mkv|mp4)$', re.IGNORECASE)
@@ -128,21 +128,21 @@ if __name__ == '__main__':
         # Pole buttons for presses.
         if GPIO.input(button_red['gpio']) == 0:
             active_cartoon = play_cartoon('button_red')
-            print(active_cartoon)
+            logging.info(f"{active_cartoon} pressed")
     
         if GPIO.input(button_blue['gpio']) == 0:
             active_cartoon = play_cartoon('button_blue')
-            print(active_cartoon)
+            logging.info(f"{active_cartoon} pressed")
     
         if GPIO.input(button_green['gpio']) == 0:
             active_cartoon = play_cartoon('button_green')
-            print(active_cartoon)
+            logging.info(f"{active_cartoon} pressed")
     
     
         # Continue playing active cartoon.
         if not player.active():
             play_cartoon(active_cartoon)
-            print(active_cartoon)
+            logging.info(f"{active_cartoon} pressed")
     
-        sleep(0.03)
+        sleep(0.06)
 
