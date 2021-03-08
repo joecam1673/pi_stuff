@@ -1,3 +1,3 @@
 # pi_stuff
 
-Various Raspberry Pi things I use.
+Various Raspberry Pi scripts I use.
